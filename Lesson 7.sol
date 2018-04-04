@@ -172,6 +172,10 @@ contract BestTokenCoin is MintableToken {
     
     uint32 public constant decimals = 18;
     
+    function BestTokenCoin(){
+        setSaleAgent(msg.sender);
+    }
+    
 }
 
 contract Crowdsale {
@@ -187,7 +191,7 @@ contract Crowdsale {
     function Crowdsale() {
         owner = msg.sender;
     }
-
+    
     function() external payable {
         require(now > start && now < start + period*24*60*60);
         owner.transfer(msg.value);

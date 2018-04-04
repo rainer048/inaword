@@ -172,6 +172,10 @@ contract BestTokenCoin is MintableToken {
     
     uint32 public constant decimals = 18;
     
+    function BestTokenCoin(){
+        setSaleAgent(msg.sender);
+    }
+    
 }
 
 contract Crowdsale is Ownable {
@@ -194,6 +198,8 @@ contract Crowdsale is Ownable {
 
     uint rate;
 
+    uint softcap;
+
     mapping (address => uint) public balances;
 
     function Crowdsale() public {
@@ -201,7 +207,7 @@ contract Crowdsale is Ownable {
         restricted = 0xb3eD172CC64839FB0C0Aa06aa129f402e994e7De;
         restrictedPercent = 30;
         rate = 100000000000000000000;
-        start = 1500379200;
+        start = 1522540800;
         period = 30;
         hardcap = 10000000000000000000000;
         softcap = 10000000000000000000;
@@ -228,7 +234,7 @@ contract Crowdsale is Ownable {
       }
     }
 
-    function refund(){
+    function refund() public {
       require (this.balance < softcap && now > start + period * 1 days);
       uint value = balances[msg.sender];
       balances[msg.sender] = 0;

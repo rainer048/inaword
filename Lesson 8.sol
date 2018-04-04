@@ -171,6 +171,10 @@ contract BestTokenCoin is MintableToken {
     string public constant symbol = "BCT";
     
     uint32 public constant decimals = 18;
+
+    function BestTokenCoin(){
+        setSaleAgent(msg.sender);
+    }
     
 }
 
@@ -199,7 +203,7 @@ contract Crowdsale is Ownable {
         restricted = 0xb3eD172CC64839FB0C0Aa06aa129f402e994e7De;
         restrictedPercent = 30;
         rate = 100000000000000000000;
-        start = 1500379200;
+        start = 1522540800;
         period = 30;
         hardcap = 10000000000000000000000;
     }
