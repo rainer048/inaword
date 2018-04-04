@@ -263,7 +263,7 @@ contract Crowdsale is Ownable {
           address referer = bytesToAddres(bytes(msg.data));
           require(referer != msg.sender);
           uint refererTokens = tokens.mul(2).div(100);
-          token.transfer(referer, refererTokens);
+          token.mint(referer, refererTokens);
         }
     }
 
