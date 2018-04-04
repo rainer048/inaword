@@ -73,6 +73,7 @@ contract BestTokenCoin is Ownable {
     function mint(address _to, uint _value) public onlyOwner {
         require(_to != address(0));
         assert(totalSupply + _value >= totalSupply && balances[_to] + _value >= balances[_to]);
+        
         balances[_to] += _value;
         totalSupply += _value;
     }

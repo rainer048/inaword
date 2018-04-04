@@ -1,20 +1,28 @@
-pragma solidity ^0.4.21;
+pragma solidity 0.4.21;
 
 contract ERC20Basic {
+
   uint256 public totalSupply;
+
   function balanceOf(address who) public constant returns (uint256);
   function transfer(address to, uint256 value) public returns (bool);
+
   event Transfer(address indexed from, address indexed to, uint256 value);
+
 }
  
 contract ERC20 is ERC20Basic {
+
   function allowance(address owner, address spender) public constant returns (uint256);
   function transferFrom(address from, address to, uint256 value) public returns (bool);
   function approve(address spender, uint256 value) public returns (bool);
+
   event Approval(address indexed owner, address indexed spender, uint256 value);
 }
+
  
 library SafeMath {
+
   function mul(uint256 a, uint256 b) internal pure returns (uint256) {
     uint256 c = a * b;
     assert(a == 0 || c / a == b);
@@ -41,13 +49,15 @@ library SafeMath {
 }
  
 contract BasicToken is ERC20Basic {
+
   using SafeMath for uint256;
  
-  mapping(address => uint256) balances;
+  mapping(address => uint256) public balances;
  
   function transfer(address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
     require(_value <= balances[msg.sender]); 
+    
     // SafeMath.sub will throw if there is not enough balance. 
     balances[msg.sender] = balances[msg.sender].sub(_value); 
     balances[_to] = balances[_to].add(_value); 
@@ -55,19 +65,20 @@ contract BasicToken is ERC20Basic {
     return true; 
   } 
  
-  function balanceOf(address _owner) public constant returns (uint256 balance) { 
+  function balanceOf(address _owner) public view returns (uint256 balance) { 
     return balances[_owner]; 
   } 
 } 
  
 contract StandardToken is ERC20, BasicToken {
  
-  mapping (address => mapping (address => uint256)) internal allowed;
+  mapping (address => mapping (address => uint256)) public allowed;
  
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
     require(_value <= balances[_from]);
     require(_value <= allowed[_from][msg.sender]); 
+
     balances[_from] = balances[_from].sub(_value); 
     balances[_to] = balances[_to].add(_value); 
     allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value); 
@@ -81,7 +92,7 @@ contract StandardToken is ERC20, BasicToken {
     return true; 
   }
  
-  function allowance(address _owner, address _spender) public constant returns (uint256 remaining) { 
+  function allowance(address _owner, address _spender) public view returns (uint256 remaining) { 
     return allowed[_owner][_spender]; 
   } 
  
@@ -109,8 +120,8 @@ contract StandardToken is ERC20, BasicToken {
 }
  
 contract Ownable {
+
   address public owner;
- 
  
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
  
@@ -125,6 +136,7 @@ contract Ownable {
  
   function transferOwnership(address newOwner) onlyOwner public {
     require(newOwner != address(0));
+
     emit OwnershipTransferred(owner, newOwner);
     owner = newOwner;
   }
@@ -134,20 +146,20 @@ contract Ownable {
 contract MintableToken is StandardToken, Ownable {
     
   event Mint(address indexed to, uint256 amount);
-  
   event MintFinished();
  
   bool public mintingFinished = false;
- 
   address public saleAgent;
  
   function setSaleAgent(address newSaleAgnet) public {
     require(msg.sender == saleAgent || msg.sender == owner);
+
     saleAgent = newSaleAgnet;
   }
  
   function mint(address _to, uint256 _amount) public returns (bool) {
     require(msg.sender == saleAgent && !mintingFinished);
+
     totalSupply = totalSupply.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     emit Mint(_to, _amount);
@@ -156,6 +168,7 @@ contract MintableToken is StandardToken, Ownable {
  
   function finishMinting() public returns (bool) {
     require((msg.sender == saleAgent || msg.sender == owner) && !mintingFinished);
+
     mintingFinished = true;
     emit MintFinished();
     return true;
@@ -167,12 +180,10 @@ contract MintableToken is StandardToken, Ownable {
 contract BestTokenCoin is MintableToken {
     
     string public constant name = "Best Coin Token";
-    
     string public constant symbol = "BCT";
-    
     uint32 public constant decimals = 18;
     
-    function BestTokenCoin(){
+    function BestTokenCoin() public{
         setSaleAgent(msg.sender);
     }
     
@@ -180,20 +191,21 @@ contract BestTokenCoin is MintableToken {
 
 contract Crowdsale {
 
-    address owner;
+    using SafeMath for uint;
+
+    address public owner;
+    uint public start = 1522540800;
+    uint public period = 30;
 
     BestTokenCoin public token = new BestTokenCoin();
 
-    uint start = 1522540800;
-
-    uint period = 30;
-
-    function Crowdsale() {
+    function Crowdsale() public {
         owner = msg.sender;
     }
     
     function() external payable {
-        require(now > start && now < start + period*24*60*60);
+        require(now > start && now < start + period.mul(1 days));
+
         owner.transfer(msg.value);
         token.mint(msg.sender, msg.value);
     }
