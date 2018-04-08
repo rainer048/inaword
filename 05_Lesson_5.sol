@@ -15,6 +15,7 @@ contract Ownable {
     }
 
     function transferOwnership(address newOwner) public onlyOwner {
+        require(newOwner != address(0));
         owner = newOwner;
     }
 }
@@ -31,10 +32,12 @@ contract BestTokenCoin is Ownable {
     mapping (address => uint) public balances;
     mapping (address => mapping(address => uint)) public allowed;
 
+
     event Transfer(address indexed _from, address indexed _to, uint _value);
     event Approval(address indexed _owner, address indexed _spender, uint _value);
 
     function balanceOf(address _owner) public view returns (uint balance) {
+        require(_owner != address(0));
         return balances[_owner];
     }
 
@@ -49,6 +52,7 @@ contract BestTokenCoin is Ownable {
     }
 
     function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
+        require(_from != address(0));
         require(_to != address(0));
         require(_value <= balances[_from]);
         require(_value <= allowed[_from][msg.sender]);
@@ -61,19 +65,24 @@ contract BestTokenCoin is Ownable {
     }
 
     function approve(address _spender, uint _value) public returns (bool success) {
+        require(_spender != address(0));
+
         allowed[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
     }
 
     function allowance(address _owner, address _spender) public constant returns (uint remaining) {
+        require(_owner != address(0));
+        require(_spender != address(0));
+
         return allowed[_owner][_spender];
     }
 
     function mint(address _to, uint _value) public onlyOwner {
         require(_to != address(0));
         assert(totalSupply + _value >= totalSupply && balances[_to] + _value >= balances[_to]);
-        
+
         balances[_to] += _value;
         totalSupply += _value;
     }
